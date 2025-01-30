@@ -1,33 +1,40 @@
-
-class Llama
-  attr_accessor :depth, :context, :batch
-  def initialize
-    @i = []
-    @o = []
-    @context = 2048
-    @batch = 128
-    @depth = 1
-  end
-  def args
-    %[-c #{@context} -b #{@batch}]
-  end
-  def llama i
-    `llama #{args} -p "#{i}" 2> /dev/null`.strip.gsub(i,"").strip
-  end
-  def trim i,o
-    @i << i
-    @o << o
-    [@i,@o].each { |e| if e.length > @depth; e.shift; end; }
-  end
-  def process k
-    o = llama(%[#{k}\n])
-    if o != nil
-      trim p, o
-    end
-    if "#{o}".length == 0
-      o = "I don't know."
-    end
-    return { input: k, output: o }
-  end
+require 'httparty'
+module LLAMA                                                                                                                                                                                     
+  class Llama                                                                                                                                                                                    
+    include HTTParty                                                                                                                                                                             
+    base_uri 'http://127.0.0.1:8080'                                                                                                                                                             
+  end                                                                                                                                                                                            
+                                                                                                                                                                                                 
+  @@P = {                                                                                                                                                                                        
+    respond: %[Respond simply and directly with as few words possible.],                                                                                                                         
+    answer: %[Answer questions from the user as honestly and correctly as possible.],                                                                                                            
+    friend: %[Respond in a helpful friendly manner.],                                                                                                                                            
+    nanny: %[Construct a story based upon things you are told.],                                                                                                                                 
+    truth: %[Respond truthfully.]                                                                                                                                                                
+  }                                                                                                                                                                                              
+                                                                                                                                                                                                 
+  def self.prompt                                                                                                                                                                                
+    @@P                                                                                                                                                                                          
+  end                                                                                                                                                                                            
+                                                                                                                                                                                                 
+                                                                                                                                                                                                 
+  def self.flagz                                                                                                                                                                                 
+    Llama.get('/flagz')                                                                                                                                                                          
+  end                                                                                                                                                                                            
+                                                                                                                                                                                                 
+  def self.post p, *i                                                                                                                                                                            
+    h = LLAMA.flagz.to_h                                                                                                                                                                         
+    h['prompt'] = p                                                                                                                                                                              
+    h['messages'] = [i].flatten                                                                                                                                                                  
+    puts %[LLAMA POST #{h}]                                                                                                                                                                      
+    r = Llama.post('/v1/chat/completions',                                                                                                                                                       
+                   body: JSON.generate(h),                                                                                                                                                       
+                   headers: {                                                                                                                                                                    
+                     'Content-Type' => 'application/json',                                                                                                                                       
+                     'Accept' => 'application/json',                                                                                                                                             
+                     'Prefer' => 'wait'                                                                                                                                                          
+                   })                                                                                                                                                                            
+    r['choices'][0]['message']['content']                                                                                                                                                        
+  end                                                                                                                                                                                            
 end
 

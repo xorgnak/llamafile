@@ -1,11 +1,17 @@
 PATH
   remote: .
   specs:
-    llamafile (0.1.0)
+    llamafile (0.1.2)
+      httparty
 
 GEM
   remote: https://rubygems.org/
   specs:
+    httparty (0.21.0)
+      mini_mime (>= 1.0.0)
+      multi_xml (>= 0.5.2)
+    mini_mime (1.1.5)
+    multi_xml (0.6.0)
     rake (13.1.0)
 
 PLATFORMS

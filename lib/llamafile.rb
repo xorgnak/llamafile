@@ -6,10 +6,26 @@ require_relative "llamafile/llama"
 
 module Llamafile
   class Error < StandardError; end
-  def self.llama i
-    Llama.new().process(i)
+
+  attr_accessor :prompt
+
+  def self.prompt
+    LLAMA.prompt
   end
+
+  def prompt
+    Llamafile.prompt
+  end
+  
+  def self.llama i
+    LLAMA.post(LLAMA.prompt[:truth], { role: 'user', content: i })
+  end
+
   def llama i
-    Llamafile.process(i) 
+    Llamafile.llama i
+  end
+  
+  def self.<< i
+    Llamafile.llama i
   end
 end
